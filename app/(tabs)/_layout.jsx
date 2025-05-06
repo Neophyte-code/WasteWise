@@ -6,7 +6,7 @@ const TabsLayout = () => {
     
     <>
       <Tabs>
-        <Tabs.Screen name="home" />
+        <Tabs.Screen name="home" options={{headerShown:false}}/>
       </Tabs>
     </>
   )

@@ -1,24 +1,35 @@
-import { StyleSheet, Text, View, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Formfield from '../../components/Formfield';
-import {Link} from "expo-router";
+import { Link, router } from 'expo-router';
 import { useState } from 'react';
-import CustomButton from "../../components/CustomButton"
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from './firebase'; // Import Firebase auth
+import Formfield from '../../components/Formfield';
+import CustomButton from '../../components/CustomButton';
 
 const SignIn = () => {
-
-  // for show and hide password feature
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  // for loading listener when submitting the form
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // for submittting the log in credentals
-  const submit = () => {
+  const handleSignIn = async () => {
+    setIsSubmitting(true);
 
+    try {
+      await signInWithEmailAndPassword(
+        auth,
+        form.email,
+        form.password
+      );
+      router.push("/home");
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -27,28 +38,42 @@ const SignIn = () => {
         <View style={styles.signInContent}>
           <Text style={styles.title}>WasteWise</Text>
           <Text style={styles.subTitle}>Log in to Wastewise</Text>
-          <Formfield title="Email" value={form.email} handleChangeText={(e) => setForm({ ...form, email: e })} keyboardType="email-address" otherStyles={{marginTop: 50}} />
-          <Formfield title="Password" value={form.password} handleChangeText={(e) => setForm({ ...form, password: e })} otherStyles={{marginTop: 10}} />
+          
+          <Formfield 
+            title="Email" 
+            value={form.email} 
+            handleChangeText={(e) => setForm({ ...form, email: e })} 
+            keyboardType="email-address" 
+            otherStyles={{ marginTop: 50 }} 
+          />
+          
+          <Formfield 
+            title="Password" 
+            value={form.password} 
+            handleChangeText={(e) => setForm({ ...form, password: e })} 
+            secureTextEntry 
+            otherStyles={{ marginTop: 10 }} 
+          />
           
           <CustomButton 
-          title="Log In"
-          handlePress={submit}
-          containerStyles={{marginTop: 50}}
-          isLoading={isSubmitting}
+            title="Log In"
+            handlePress={handleSignIn}
+            containerStyles={{ marginTop: 50 }}
+            isLoading={isSubmitting}
           />
 
           <View style={styles.linkContainer}>
             <Text style={styles.linkText}>Don't have an account? </Text>
             <Link href="/sign-up" style={styles.link}>Sign up</Link>
           </View>
-          <Link href="/members" style={styles.members}>CLick to view Members </Link>
         </View>
       </ScrollView>
     </SafeAreaView>
   );
-}
+};
 
 export default SignIn;
+
 
 const styles = StyleSheet.create({
   safeArea: {
